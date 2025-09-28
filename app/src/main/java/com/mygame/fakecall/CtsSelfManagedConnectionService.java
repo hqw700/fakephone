@@ -1,22 +1,5 @@
-/*
- * Copyright (C) 2017 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License
- */
+package com.mygame.fakecall;
 
-package com.mygame.fakephone;
-
-import android.content.Intent;
 import android.os.Bundle;
 import android.telecom.Connection;
 import android.telecom.ConnectionRequest;
@@ -29,10 +12,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-/**
- * CTS Verifier ConnectionService implementation.
- */
-public class CtsConnectionService extends ConnectionService {
+public class CtsSelfManagedConnectionService extends ConnectionService {
     static final int TIMEOUT_MILLIS = 10000;
 
     private CtsConnection.Listener mConnectionListener =
@@ -45,18 +25,18 @@ public class CtsConnectionService extends ConnectionService {
                 }
             };
 
-    private static CtsConnectionService sConnectionService;
+    private static CtsSelfManagedConnectionService sConnectionService;
     private static CountDownLatch sBindingLatch = new CountDownLatch(1);
 
-    private List<CtsConnection> mConnections = new ArrayList<>();
-    private Object mConnectionsLock = new Object();
-    private CountDownLatch mConnectionLatch = new CountDownLatch(1);
+    List<CtsConnection> mConnections = new ArrayList<>();
+    Object mConnectionsLock = new Object();
+    CountDownLatch mConnectionLatch = new CountDownLatch(1);
 
-    public static CtsConnectionService getConnectionService() {
+    public static CtsSelfManagedConnectionService getConnectionService() {
         return sConnectionService;
     }
 
-    public static CtsConnectionService waitForAndGetConnectionService() {
+    public static CtsSelfManagedConnectionService waitForAndGetConnectionService() {
         if (sConnectionService == null) {
             try {
                 sBindingLatch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
@@ -66,7 +46,7 @@ public class CtsConnectionService extends ConnectionService {
         return sConnectionService;
     }
 
-    public CtsConnectionService() throws Exception {
+    public CtsSelfManagedConnectionService() throws Exception {
         super();
         sConnectionService = this;
         if (sBindingLatch != null) {
@@ -97,46 +77,22 @@ public class CtsConnectionService extends ConnectionService {
     }
 
     @Override
-    public boolean onUnbind(Intent intent) {
-        sConnectionService = null;
-        return super.onUnbind(intent);
+    public Connection onCreateIncomingConnection(PhoneAccountHandle connectionManagerPhoneAccount,
+            ConnectionRequest request) {
+        return createConnection(request, true /* isIncoming */);
     }
 
     @Override
     public Connection onCreateOutgoingConnection(PhoneAccountHandle connectionManagerAccount,
-                                                 final ConnectionRequest request) {
-
-        return createManagedConnection(request, false);
+            ConnectionRequest request) {
+        return createConnection(request, false /* isIncoming */);
     }
 
-    @Override
-    public Connection onCreateIncomingConnection(PhoneAccountHandle connectionManagerPhoneAccount,
-                                                 ConnectionRequest request) {
-
-        return createManagedConnection(request, true);
-    }
-
-    @Override
-    public void onCreateIncomingConnectionFailed(PhoneAccountHandle connectionManagerHandle,
-                                                 ConnectionRequest request) {
-    }
-
-    @Override
-    public void onCreateOutgoingConnectionFailed(PhoneAccountHandle connectionManagerHandle,
-                                                 ConnectionRequest request) {
-    }
-
-    private Connection createManagedConnection(ConnectionRequest request, boolean isIncoming) {
-        boolean isSelfManaged = request.getAccountHandle().equals(
-                PhoneAccountUtils.TEST_SELF_MANAGED_PHONE_ACCOUNT_HANDLE);
-
+    private Connection createConnection(ConnectionRequest request, boolean isIncoming) {
         boolean useAudioClip =
                 request.getExtras().getBoolean(CtsConnection.EXTRA_PLAY_CS_AUDIO, false);
         CtsConnection connection = new CtsConnection(getApplicationContext(), isIncoming,
                 mConnectionListener, useAudioClip);
-        if (isSelfManaged) {
-            connection.setConnectionProperties(Connection.PROPERTY_SELF_MANAGED);
-        }
         connection.setConnectionCapabilities(Connection.CAPABILITY_SUPPORT_HOLD |
                 Connection.CAPABILITY_HOLD);
         connection.setAddress(request.getAddress(), TelecomManager.PRESENTATION_ALLOWED);

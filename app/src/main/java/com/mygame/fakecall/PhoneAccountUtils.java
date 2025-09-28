@@ -14,7 +14,7 @@
  * limitations under the License
  */
 
-package com.mygame.fakephone;
+package com.mygame.fakecall;
 
 import android.content.ComponentName;
 import android.content.Context;

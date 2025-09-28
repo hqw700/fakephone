@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mygame.fakephone">
+    package="com.mygame.fakecall">
 
     <uses-feature
         android:name="android.hardware.telephony"
@@ -19,11 +19,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <service
-            android:name=".DelayIntentService"
+            android:name="com.mygame.fakecall.DelayIntentService"
             android:exported="false">
         </service>
 
-        <activity android:name=".MainActivity"
+        <activity android:name="com.mygame.fakecall.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,7 +33,7 @@
         </activity>
 
         <service
-            android:name=".CtsConnectionService"
+            android:name="com.mygame.fakecall.CtsConnectionService"
             android:exported="true"
             android:permission="android.permission.BIND_TELECOM_CONNECTION_SERVICE">
             <intent-filter>
@@ -41,7 +41,7 @@
             </intent-filter>
         </service>
         <service
-            android:name=".CtsSelfManagedConnectionService"
+            android:name="com.mygame.fakecall.CtsSelfManagedConnectionService"
             android:exported="true"
             android:permission="android.permission.BIND_TELECOM_CONNECTION_SERVICE">
             <intent-filter>
@@ -49,7 +49,7 @@
             </intent-filter>
         </service>
 
-        <receiver android:name=".PhoneStateReceiver"
+        <receiver android:name="com.mygame.fakecall.PhoneStateReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.NEW_OUTGOING_CALL" />

@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.mygame.fakephone"
+    namespace = "com.mygame.fakecall"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.mygame.fakephone"
+        applicationId = "com.mygame.fakecall"
         minSdk = 24
         targetSdk = 35
         versionCode = 1

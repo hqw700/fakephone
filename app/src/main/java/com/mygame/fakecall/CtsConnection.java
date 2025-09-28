@@ -14,7 +14,7 @@
  * limitations under the License
  */
 
-package com.mygame.fakephone;
+package com.mygame.fakecall;
 
 import android.content.Context;
 import android.media.AudioAttributes;
